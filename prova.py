@@ -1,0 +1,2 @@
+
+print(not None == "ok")

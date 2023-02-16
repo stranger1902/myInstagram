@@ -1,0 +1,14 @@
+
+# FOLDERS
+__pycache__
+STORIES
+POSTS
+VARIE
+LOGS
+
+#FILES
+InstagramDB.db
+
+#FILES EXSTENSIONS
+*.bak
+*.exe
