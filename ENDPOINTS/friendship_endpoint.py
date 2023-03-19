@@ -27,6 +27,8 @@ class friendshipEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.GET_FOLLOWERS: return self.getFollowers(**kwargs)
 
+        if self.URL is U.API_ENDPOINTS.UNFOLLOW_USER: return self.unfollowUser(**kwargs)
+
         if self.URL is U.API_ENDPOINTS.FOLLOW_USER: return self.followUser(**kwargs)
 
         else: raise EX.MyInstagramException(f"Endpoint {self.URL} is NOT a valid friendshipEndpointAPI")
@@ -52,8 +54,7 @@ class friendshipEndpointAPI():
 
     def getFollowers(self, username, num_user_returned=100):
 
-        getUserByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-        currentUser = getUserByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
 
         listFollowers = []
 
@@ -90,8 +91,7 @@ class friendshipEndpointAPI():
 
     def getFollowings(self, username, num_user_returned=100):
 
-        getUserByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-        currentUser = getUserByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
 
         listFollowings = []
 
@@ -130,9 +130,7 @@ class friendshipEndpointAPI():
                 
         if self.sessionContext.LoggedUser["username"] == username: return U.ScriviLog("You are trying to follow yourself", U.LEVEL.ERROR)
 
-        getUserByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-
-        currentUser = getUserByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
 
         if currentUser["friendship"]["you_follow_it"]: return U.ScriviLog(f"You already follow '{username}'", U.LEVEL.INFO)
 
@@ -146,23 +144,32 @@ class friendshipEndpointAPI():
                   "X-ASBD-ID" : self.sessionContext.AppID
                   }
 
-        ResponseFollowUser, ResponseFollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.FOLLOW_USER, currentUser["id"]], headers=header)
+        payload = {"nav_chain" : "PolarisFeedRoot:feedPage:1:via_cold_start,PolarisProfileRoot:profilePage:2:unexpected",
+                   "container_module" : "profile",
+                   "user_id" : currentUser["id"]
+                   }
+
+        ResponseFollowUser, ResponseFollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.FOLLOW_USER, currentUser["id"]], headers=header, payloads=payload)
+
+        U.ScriviLog(ResponseFollowUserJSON, U.LEVEL.INFO)
 
         if not ResponseFollowUserJSON["data"]["status"] == "ok": raise EX.MyInstagramException(f"Request to follow '{username}' is failed")
 
-        if ResponseFollowUserJSON["data"]["result"] == "requested": U.ScriviLog(f"You sent friendship request to '{username}'", U.LEVEL.INFO)
+        friendshipStatus = ResponseFollowUserJSON["data"]["friendship_status"]
        
-        elif ResponseFollowUserJSON["data"]["result"] == "following": U.ScriviLog(f"Now you follow '{username}'", U.LEVEL.INFO)
-        
-        else: raise EX.MyInstagramException(ResponseFollowUserJSON)
+        if friendshipStatus["following"]: U.ScriviLog(f"Now you follow '{username}'", U.LEVEL.INFO)
 
+        else:
+        
+            if friendshipStatus["outgoing_request"]: U.ScriviLog(f"You sent friendship request to '{username}'", U.LEVEL.INFO)
+
+            else: raise EX.MyInstagramException(ResponseFollowUserJSON)
+        
     def unfollowUser(self, username):
         
         if self.sessionContext.LoggedUser["username"] == username: return U.ScriviLog("You are trying to unfollow yourself", U.LEVEL.ERROR)
         
-        getUserByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-
-        currentUser = getUserByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
 
         if not currentUser["friendship"]["you_follow_it"]: return U.ScriviLog(f"Request to unfollow failed. You don't follow '{username}'", U.LEVEL.INFO)
 
@@ -173,7 +180,12 @@ class friendshipEndpointAPI():
                   "X-ASBD-ID" : self.sessionContext.AppID,
                   }
 
-        ResponseUnfollowUser, ResponseUnfollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.UNFOLLOW_USER, currentUser["id"]], headers=header)
+        payload = {"nav_chain" : "PolarisFeedRoot:feedPage:1:via_cold_start,PolarisProfileRoot:profilePage:2:unexpected",
+                   "container_module" : "profile",
+                   "user_id" : currentUser["id"]
+                   }
+
+        ResponseUnfollowUser, ResponseUnfollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.UNFOLLOW_USER, currentUser["id"]], headers=header, payloads=payload)
 
         U.ScriviLog(ResponseUnfollowUserJSON, U.LEVEL.INFO)
 

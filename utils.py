@@ -48,8 +48,8 @@ class API_ENDPOINTS(Enum):
     GET_FOLLOWINGS = C.API_BASE_URL + "friendships/{}/following/?count={}{}"
     GET_FOLLOWERS = C.API_BASE_URL + "friendships/{}/followers/?count={}{}"
     GET_FRIENDSHIP_STATUS = C.API_BASE_URL + "friendships/show/{}/"
-    UNFOLLOW_USER = C.API_BASE_URL + "web/friendships/{}/unfollow/"
-    FOLLOW_USER = C.API_BASE_URL + "web/friendships/{}/follow/"
+    UNFOLLOW_USER = C.API_BASE_URL + "friendships/destroy/{}/"
+    FOLLOW_USER = C.API_BASE_URL + "friendships/create/{}/"
     ACCEPT_FOLLOW = None                                                                    #TODO: da implementare metodo
     REJECT_FOLLOW = None                                                                    #TODO: da implementare metodo
     # feeds endpoints
@@ -76,7 +76,9 @@ def ScriviLog(msg, level, color=None, verbose=False):
     
     else: print(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\t[" + f"{level.value}" + "]\t\t" + f"{msg}")
 
-def myInput(msg): 
+def myInput(msg, no_upper=False): 
+    
+    if no_upper: return input(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\t[{LEVEL.INPUT.value}]\t\t{msg}").strip()
     
     return input(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\t[{LEVEL.INPUT.value}]\t\t{msg}").strip().upper()
     

@@ -263,9 +263,10 @@ class MyInstagram:
         if ResponseLoginJSON["error"] == "checkpoint": self.checkpointRequired(responseJSON)
 
         if ResponseLoginJSON["error"] == "two_factor_required": 
+            
             ResponseLogin, ResponseLoginJSON = self.TwoFactorLogin(ResponseLoginJSON, username)
-            if ResponseLoginJSON["error"] == "checkpoint": 
-                self.checkpointRequired(ResponseLoginJSON)
+            
+            if ResponseLoginJSON["error"] == "checkpoint": self.checkpointRequired(ResponseLoginJSON)
 
         if not ResponseLoginJSON["data"]["authenticated"]: raise EX.MyLoginException("username/password is NOT valid to login")
 
@@ -367,7 +368,9 @@ class MyInstagram:
 
             endpoint = feed_endpoint.feedEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_POSTS)
 
-        if codeAPI == U.API_ENDPOINTS.UNFOLLOW_USER: pass
+        if codeAPI == U.API_ENDPOINTS.UNFOLLOW_USER:
+
+            endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.UNFOLLOW_USER)
 
         if codeAPI == U.API_ENDPOINTS.FOLLOW_USER: 
 
