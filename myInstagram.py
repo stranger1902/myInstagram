@@ -26,7 +26,7 @@ class MyInstagram:
             U.ScriviLog(f"Attempt to login by cookies failed - No sessions available. It will make a new login", U.LEVEL.INFO)
             return False
 
-        if len(ResultQuery) > 1: raise EX.MyLoginException("Anomalia sui dati. Troppe sessioni precedenti disponibili da disconnettere")
+        if len(ResultQuery) > 1: raise EX.MyLoginException("Too available previous session to disconnect. Force login without cookies")
 
         sessionData = json.loads(ResultQuery[0]["COOKIES"])
         prgSession = ResultQuery[0]["NEW_PRG"] 
@@ -105,14 +105,14 @@ class MyInstagram:
 
         for count in range(0, C.MAX_RETRY_TWO_FACTOR_LOGIN):
 
-            if modeTwoFactor == 1: inputText = U.myInput(f"Inserisci ('exit' to quit - 'new' to send another verification code) il codice di sicurezza (tentativi {count + 1} di {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
+            if modeTwoFactor == 1: inputText = U.myInput(f"Enter ('exit' to quit - 'new' to send another verification code) secure code (attempts {count + 1} of {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
             
-            elif modeTwoFactor == 3: inputText = U.myInput(f"Inserisci ('exit' to quit) il codice di sicurezza restituito dall'app di autenticazione a 2 fattori configurata (es. DuoMobile) (tentativi {count + 1} di {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
+            elif modeTwoFactor == 3: inputText = U.myInput(f"Enter ('exit' to quit) secure code returned by 2-factor authentication app configurated (es. DuoMobile) (attempts {count + 1} of {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
 
             #TODO: scoprire il codice della modalità da inserire nel payload
-            elif modeTwoFactor == 999: inputText = U.myInput(f"Inserisci ('exit' to quit) il codice di sicurezza restituito da Whatsapp (tentativi {count + 1} di {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
+            elif modeTwoFactor == 999: inputText = U.myInput(f"Enter ('exit' to quit) secure code returned by whatsapp (attempts {count + 1} of {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
             
-            else: inputText = U.myInput(f"Inserisci ('exit' to quit) uno tra i codici di recupero ad 8 cifre disponibili (tentativi {count + 1} di {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
+            else: inputText = U.myInput(f"Enter ('exit' to quit) one of 8-digits recovery codes available (attempts {count + 1} of {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
 
             if inputText == "EXIT": raise EX.MyLoginException("Login failed 1")
 
@@ -138,7 +138,7 @@ class MyInstagram:
 
                 if not ResponseTwoFactorSmsJSON["error"] == "try_later": twoFactorIdentifier = ResponseTwoFactorSmsJSON["data"]["two_factor_info"]["two_factor_identifier"]
 
-                inputText = U.myInput(f"Inserisci il codice di sicurezza ('exit' to quit - 'new' to send another verification code) (tentativi {count + 1} di {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
+                inputText = U.myInput(f"Enter secure code ('exit' to quit - 'new' to send another verification code) (attempts {count + 1} of {C.MAX_RETRY_TWO_FACTOR_LOGIN}): ")
 
             ResponseTwoFactorLogin, ResponseTwoFactorLoginJSON = self.sendVerificationCode(username, twoFactorIdentifier, inputText.replace(" ", ""), modeTwoFactor)
             
@@ -153,7 +153,7 @@ class MyInstagram:
 
         if recoveryMode == "S":
 
-            inputText = U.myInput(f"Inserisci uno tra i codici di recupero ad 8 cifre disponibili ('exit' to quit): ")
+            inputText = U.myInput(f"Enter ('exit' to quit) one of 8-digits recovery codes available: ")
 
             if inputText == "EXIT": raise EX.MyLoginException("Login Failed 3")
     
@@ -223,7 +223,7 @@ class MyInstagram:
 
         if len(ResultQuery) == 0: U.ScriviLog("There are NO previous sessions to disconnect", U.LEVEL.INFO)
 
-        elif len(ResultQuery) > 1: raise EX.MyLoginException("Anomalia sui dati. Troppe sessioni precedenti disponibili da disconnettere")
+        elif len(ResultQuery) > 1: raise EX.MyLoginException("Too available previous session to disconnect. Force login without cookies")
 
         else:
             
@@ -327,7 +327,7 @@ class MyInstagram:
             
         except EX.MyLoginRequiredException as err: 
     
-            U.ScriviLog("Logout failed - La sessione salvata era già stata disconnessa manualmente", U.LEVEL.INFO)
+            U.ScriviLog("Logout failed - Stored session was already disconnected", U.LEVEL.INFO)
 
         self.MyDB.executeQuery(DB.QUERY_DB.UPDATE_LOGOUT_SESSION, (datetime.today(), self.sessionContext.SessionID), True)
 
