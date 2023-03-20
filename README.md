@@ -35,11 +35,11 @@ This method return info about a user using its Instagram username (es. @my_andro
 
 Params:
 
-    username (str): Instagram username of the user
+- **`username: str`** &emsp; Instagram username of the user
 
 Return value:
 
-    dict: info of the user
+- **`dict`** &emsp; info of the user
 
 How to call method:
 
@@ -53,11 +53,11 @@ This method return info about a user using its Instagram ID (es. 44575834543)
 
 Params:
 
-    user_id (str): Instagram ID associated to an user Instagram account
+- **`user_id: str`** &emsp; Instagram ID associated to an user Instagram account
 
 Return value:
 
-    dict: info of the user
+- **`dict`** &emsp; info of the user
 
 How to call method:
 
@@ -71,11 +71,11 @@ This method return all users that follow another user
 
 Params:
 
-    username (str): Instagram username of the user you want get list of following users
+- **`username: str`** &emsp; Instagram username of the user you want get list of following users
 
 Return value:
 
-    list: list of all following users 
+- **`list`** &emsp; list of all following users 
 
 How to call method:
 
@@ -89,11 +89,11 @@ This method return all users that are followed by another user
 
 Params:
 
-    username (str): Instagram username of the user you want get list of follower users
+- **`username: str`** &emsp; Instagram username of the user you want get list of follower users
 
 Return value:
 
-    list: list of all follower users 
+- **`list`** &emsp; list of all follower users 
 
 How to call method:
 
@@ -107,11 +107,11 @@ This method send a friendship request to follow a user
 
 Params:
 
-    username (str): Instagram username of the user you want follow
+- **`username: str`** &emsp; Instagram username of the user you want follow
 
 Return value:
 
-    None
+- **`None`**
 
 How to call method:
 
@@ -125,11 +125,11 @@ This method send a friendship request to unfollow a user you want follow anynore
 
 Params:
 
-    username (str): Instagram username of the user you want unfollow
+- **`username: str`** &emsp; Instagram username of the user you want unfollow
 
 Return value:
 
-    None
+- **`None`**
 
 How to call method:
 
@@ -143,11 +143,11 @@ This method return info about the friendship status with another user (es. you f
 
 Params:
 
-    username (str): Instagram username of the user
+- **`username: str`** &emsp; Instagram username of the user
 
 Return value:
 
-    dict: friendship info of the user
+- **`dict`** &emsp; friendship info of the user
 
 How to call method:
 
@@ -161,11 +161,11 @@ This method download all stories published by another user
 
 Params:
 
-    username (str): Instagram username of the user
+- **`username: str`** &emsp; Instagram username of the user you want to download stories
 
 Return value:
 
-    None
+- **`None`**
 
 How to call method:
 
@@ -179,11 +179,11 @@ This method download all posts published by another user
 
 Params:
 
-    username (str): Instagram username of the user
+- **`username: str`** &emsp; Instagram username of the user you want to download posts
 
 Return value:
 
-    None
+- **`None`**
 
 How to call method:
 
