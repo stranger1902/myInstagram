@@ -29,7 +29,7 @@ class userEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.GET_USER_BY_ID: return self.getInfoByID(**kwargs)
 
-        else: raise EX.MyInstagramException(f"Endpoint {self.URL} is NOT a valid userEndpointAPI")
+        else: raise EX.MyInstagramException(f"Endpoint '{self.URL}' is NOT a valid userEndpointAPI")
 
     def getInfoByNickname(self, username):
         

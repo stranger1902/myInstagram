@@ -6,9 +6,9 @@ class MyInstagramException(Exception):
         
         if msg:
             
-            if isinstance(msg, str): self.message = msg
+            if isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
 
-            elif isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
+            elif isinstance(msg, str): self.message = msg
 
             else: self.message = None
 
@@ -22,9 +22,9 @@ class MyTypeException(Exception):
         
         if msg:
 
-            if isinstance(msg, str): self.message = msg
+            if isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
 
-            elif isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
+            elif isinstance(msg, str): self.message = msg
 
             else: self.message = None
 
@@ -38,9 +38,9 @@ class MyLoginException(Exception):
         
         if msg:
 
-            if isinstance(msg, str): self.message = msg
+            if isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
 
-            elif isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
+            elif isinstance(msg, str): self.message = msg
 
             else: self.message = None
 
@@ -54,9 +54,9 @@ class MyLoginRequiredException(Exception):
         
         if msg:
 
-            if isinstance(msg, str): self.message = msg
+            if isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
 
-            elif isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
+            elif isinstance(msg, str): self.message = msg
 
             else: self.message = None
 
@@ -70,9 +70,9 @@ class MyDatabaseException(Exception):
         
         if msg:
 
-            if isinstance(msg, str): self.message = msg
+            if isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
 
-            elif isinstance(msg, dict) or isinstance(msg, list): self.message = "\n" + json.dumps(msg, indent=4)
+            elif isinstance(msg, str): self.message = msg
 
             else: self.message = None
 

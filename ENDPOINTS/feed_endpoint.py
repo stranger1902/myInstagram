@@ -27,14 +27,12 @@ class feedEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.GET_POSTS: return self.getPosts(**kwargs)
 
-        else: raise EX.MyInstagramException(f"Endpoint {self.URL} is NOT a valid feedEndpointAPI")
+        else: raise EX.MyInstagramException(f"Endpoint '{self.URL}' is NOT a valid feedEndpointAPI")
 
     #TODO: gestire la paginazione???
     def getStories(self, username):
         
-        userByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-
-        currentUser = userByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
         
         if currentUser["friendship"]["is_private"] and not currentUser["friendship"]["you_follow_it"]:
             return U.ScriviLog(f"Impossible to get Stories. '{username}' has a Private Account", U.LEVEL.INFO)
@@ -81,9 +79,7 @@ class feedEndpointAPI():
     #TODO: gestire numero limite posts da scaricare 
     def getPosts(self, username, num_posts_returned=20, limit_posts=0): 
         
-        userByUsernameEndpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
-
-        currentUser = userByUsernameEndpoint.execute(username=username)
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
         
         if currentUser["friendship"]["is_private"] and not currentUser["friendship"]["you_follow_it"]:
             return U.ScriviLog(f"Impossible to get Posts. '{username}' has a Private Account", U.LEVEL.INFO)
