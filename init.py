@@ -11,4 +11,4 @@ def init():
 
     MyConnetionDB.connectDB()
     MyConnetionDB.createTablesDB()
-    MyConnetionDB.closeConnetion()
+    MyConnetionDB.closeConnection()

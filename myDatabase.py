@@ -116,11 +116,11 @@ class MyDatabase():
 
         try:
 
-            self.MyConnetion = sqlite3.connect(self.databaseName)
+            self.MyConnection = sqlite3.connect(self.databaseName)
 
-            self.MyConnetion.row_factory = sqlite3.Row
+            self.MyConnection.row_factory = sqlite3.Row
 
-            if set_trace_callback: self.MyConnetion.set_trace_callback(print)
+            if set_trace_callback: self.MyConnection.set_trace_callback(print)
 
             U.ScriviLog(f"Connected to the database '{self.databaseName}'", U.LEVEL.INFO)
 
@@ -137,30 +137,18 @@ class MyDatabase():
 
     def executeQuery(self, query, parameters=(), isTransation=False):
 
-        if not self.MyConnetion: raise EX.MyDatabaseException("Database is NOT Connected")
-        
-        if parameters and not isinstance(parameters, tuple): raise EX.MyTypeException(f"The parameter 'parameters' is NOT a Tuple --> {type(parameters)}")
-
         if not isinstance(isTransation, bool): raise EX.MyTypeException(f"The parameter 'isTransation' is NOT a Boolean --> {type(query)}")
 
-        try:
-            if isTransation:
-                self.MyConnetion.cursor().execute(query.value, parameters)
-                return self.MyConnetion.commit()
-            else:
-                return self.MyConnetion.cursor().execute(query.value, parameters)
-        
-        except Error as err:
-            U.ScriviLog(str(err), U.LEVEL.ERROR)
-            if isTransation: self.MyConnetion.rollback()
-            raise EX.MyDatabaseException(err)
+        Result = self.MyConnection.cursor().execute(query.value, parameters)
 
-    def closeConnetion(self): 
+        if isTransation: self.MyConnection.commit()
+
+        return Result
+
+    def closeConnection(self): 
         
-        try:
-            self.MyConnetion.close()
-            U.ScriviLog(f"Connetion to the database '{self.databaseName}' is closed SUCCESSFULLY", U.LEVEL.INFO)
+        try: self.MyConnection.close()
         
-        except Exception as err:
-            U.ScriviLog(f"Closing database '{self.databaseName}' is failed", U.LEVEL.ERROR)
-            raise EX.MyDatabaseException(str(err))
+        except Exception as err: raise EX.MyDatabaseException(err)
+
+        U.writeLog(f"Connetion to the database '{self.databaseName}' is closed SUCCESSFULLY", U.LEVEL.INFO)
