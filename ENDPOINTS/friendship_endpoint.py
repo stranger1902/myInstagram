@@ -23,6 +23,8 @@ class friendshipEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS: return self.friendshipStatus(**kwargs)
 
+        if self.URL is U.API_ENDPOINTS.ACCEPT_FOLLOW: return self.acceptFollowRequest(**kwargs)
+
         if self.URL is U.API_ENDPOINTS.GET_FOLLOWINGS: return self.getFollowings(**kwargs)
 
         if self.URL is U.API_ENDPOINTS.GET_FOLLOWERS: return self.getFollowers(**kwargs)
@@ -31,7 +33,7 @@ class friendshipEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.FOLLOW_USER: return self.followUser(**kwargs)
 
-        else: raise EX.MyInstagramException(f"Endpoint {self.URL} is NOT a valid friendshipEndpointAPI")
+        else: raise EX.MyInstagramException(f"Endpoint '{self.URL}' is NOT a valid friendshipEndpointAPI")
 
     def friendshipStatus(self, user_id):
         
@@ -44,7 +46,6 @@ class friendshipEndpointAPI():
 
         ResponseFriendshipStatus, ResponseFriendshipStatusJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.GET, *[U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS, user_id], headers=header)
 
-        #TODO: controllare incoming_request e outgoing_request
         return {"you_received_request" : ResponseFriendshipStatusJSON["data"]["incoming_request"],
                 "you_sent_request" : ResponseFriendshipStatusJSON["data"]["outgoing_request"],
                 "it_follows_you" : ResponseFriendshipStatusJSON["data"]["followed_by"],
@@ -151,8 +152,6 @@ class friendshipEndpointAPI():
 
         ResponseFollowUser, ResponseFollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.FOLLOW_USER, currentUser["id"]], headers=header, payloads=payload)
 
-        U.ScriviLog(ResponseFollowUserJSON, U.LEVEL.INFO)
-
         if not ResponseFollowUserJSON["data"]["status"] == "ok": raise EX.MyInstagramException(f"Request to follow '{username}' is failed")
 
         friendshipStatus = ResponseFollowUserJSON["data"]["friendship_status"]
@@ -161,7 +160,7 @@ class friendshipEndpointAPI():
 
         else:
         
-            if friendshipStatus["outgoing_request"]: U.ScriviLog(f"You sent friendship request to '{username}'", U.LEVEL.INFO)
+            if friendshipStatus["is_private"] and friendshipStatus["outgoing_request"]: U.ScriviLog(f"You sent friendship request to '{username}'", U.LEVEL.INFO)
 
             else: raise EX.MyInstagramException(ResponseFollowUserJSON)
         
@@ -173,11 +172,11 @@ class friendshipEndpointAPI():
 
         if not currentUser["friendship"]["you_follow_it"]: return U.ScriviLog(f"Request to unfollow failed. You don't follow '{username}'", U.LEVEL.INFO)
 
-        header = {"X-Instagram-AJAX" : self.sessionContext.X_Instagram_AJAX,
+        header = {"Referer" : f"https://www.instagram.com/{currentUser['username']}/",
+                  "X-Instagram-AJAX" : self.sessionContext.X_Instagram_AJAX,
                   "X-IG-WWW-Claim" : self.sessionContext.X_IG_WWW_Claim,
                   "X-CSRFToken" : self.sessionContext.X_CSRF_Token,
-                  "Referer" : "https://www.instagram.com/",                      #TODO: inserire il referer corretto preso dalla richiesta fatta dal browser
-                  "X-ASBD-ID" : self.sessionContext.AppID,
+                  "X-ASBD-ID" : self.sessionContext.AppID
                   }
 
         payload = {"nav_chain" : "PolarisFeedRoot:feedPage:1:via_cold_start,PolarisProfileRoot:profilePage:2:unexpected",
@@ -187,8 +186,27 @@ class friendshipEndpointAPI():
 
         ResponseUnfollowUser, ResponseUnfollowUserJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.UNFOLLOW_USER, currentUser["id"]], headers=header, payloads=payload)
 
-        U.ScriviLog(ResponseUnfollowUserJSON, U.LEVEL.INFO)
-
         if ResponseUnfollowUserJSON["data"]["status"] == "ok": U.ScriviLog(f"You unfollowed '{username}' correctly", U.LEVEL.INFO)
 
         else: raise EX.MyInstagramException(ResponseUnfollowUserJSON)
+
+    def acceptFollowRequest(self, username):
+
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
+
+        U.ScriviLog(currentUser, U.LEVEL.INFO)
+
+        if not currentUser["friendship"]["you_received_request"]: return U.ScriviLog(f"You have NOT received follow request by '{username}'", U.LEVEL.INFO)
+
+        header = {"referer" : f"https://www.instagram.com/{currentUser['username']}/",
+                  "X-Instagram-AJAX" : self.sessionContext.X_Instagram_AJAX,
+                  "X-IG-WWW-Claim" : self.sessionContext.X_IG_WWW_Claim,
+                  "X-CSRFToken" : self.sessionContext.X_CSRF_Token,
+                  "X-ASBD-ID" : self.sessionContext.AppID
+                  }
+
+        ResponseAcceptFollow, ResponseAcceptFollowJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.ACCEPT_FOLLOW, currentUser["id"]], headers=header, payloads={})
+
+        if ResponseAcceptFollowJSON["data"]["status"] == "ok": U.ScriviLog(f"You accepted follow request received by '{username}' correctly", U.LEVEL.INFO)
+
+        else: raise EX.MyInstagramException(ResponseAcceptFollowJSON)

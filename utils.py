@@ -48,9 +48,9 @@ class API_ENDPOINTS(Enum):
     GET_FOLLOWINGS = C.API_BASE_URL + "friendships/{}/following/?count={}{}"
     GET_FOLLOWERS = C.API_BASE_URL + "friendships/{}/followers/?count={}{}"
     GET_FRIENDSHIP_STATUS = C.API_BASE_URL + "friendships/show/{}/"
+    ACCEPT_FOLLOW = C.API_BASE_URL + "web/friendships/{}/approve/"
     UNFOLLOW_USER = C.API_BASE_URL + "friendships/destroy/{}/"
     FOLLOW_USER = C.API_BASE_URL + "friendships/create/{}/"
-    ACCEPT_FOLLOW = None                                                                    #TODO: da implementare metodo
     REJECT_FOLLOW = None                                                                    #TODO: da implementare metodo
     # feeds endpoints
     GET_POSTS = C.API_BASE_URL + "feed/user/{}/username/?count={}{}"

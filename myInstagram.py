@@ -22,10 +22,8 @@ class MyInstagram:
  
         ResultQuery = self.MyDB.executeQuery(DB.QUERY_DB.SELECT_LAST_AVAILABLE_SESSION, (username, username, username)).fetchall()
 
-        if len(ResultQuery) == 0: 
-            U.ScriviLog(f"Attempt to login by cookies failed - No sessions available. It will make a new login", U.LEVEL.INFO)
-            return False
-
+        if len(ResultQuery) == 0: return U.ScriviLog(f"Attempt to login by cookies failed - No sessions available. It will make a new login", U.LEVEL.INFO)
+            
         if len(ResultQuery) > 1: raise EX.MyLoginException("Too available previous session to disconnect. Force login without cookies")
 
         sessionData = json.loads(ResultQuery[0]["COOKIES"])
@@ -61,7 +59,7 @@ class MyInstagram:
                   "X-IG-WWW-Claim" : self.sessionContext.X_IG_WWW_Claim,
                   "X-CSRFToken" : self.sessionContext.X_CSRF_Token,
                   "X-ASBD-ID" : self.sessionContext.AppID,
-                  "DNT" : 1
+                  "DNT" : "1"
                   }
 
         payload = {"verification_method" : verification_method,
@@ -127,7 +125,7 @@ class MyInstagram:
                           "X-IG-WWW-Claim" : self.sessionContext.X_IG_WWW_Claim,
                           "X-CSRFToken" : self.sessionContext.X_CSRF_Token,
                           "X-ASBD-ID" : self.sessionContext.AppID,
-                          "DNT" : 1
+                          "DNT" : "1"
                           }
 
                 payload = {"identifier" : twoFactorIdentifier,
@@ -266,7 +264,8 @@ class MyInstagram:
             
             ResponseLogin, ResponseLoginJSON = self.TwoFactorLogin(ResponseLoginJSON, username)
             
-            if ResponseLoginJSON["error"] == "checkpoint": self.checkpointRequired(ResponseLoginJSON)
+            #TODO: implement checkpoint required
+            #if ResponseLoginJSON["error"] == "checkpoint": ResponseLogin, ResponseLoginJSON = self.checkpointRequired(ResponseLoginJSON)
 
         if not ResponseLoginJSON["data"]["authenticated"]: raise EX.MyLoginException("username/password is NOT valid to login")
 
@@ -322,13 +321,9 @@ class MyInstagram:
                    "one_tap_app_login" : "0"
                    }
 
-        try: 
+        try: ResponseLogout, ResponseLogoutJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.LOGIN_URL.LOGOUT_URL], headers=header, payloads=payload)
             
-            ResponseLogout, ResponseLogoutJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.LOGIN_URL.LOGOUT_URL], headers=header, payloads=payload)
-            
-        except EX.MyLoginRequiredException as err: 
-    
-            U.ScriviLog("Logout failed - Stored session was already disconnected", U.LEVEL.INFO)
+        except EX.MyLoginRequiredException as err: U.ScriviLog("Logout failed - Stored session was already disconnected", U.LEVEL.INFO)
 
         self.MyDB.executeQuery(DB.QUERY_DB.UPDATE_LOGOUT_SESSION, (datetime.today(), self.sessionContext.SessionID), True)
 
@@ -344,40 +339,44 @@ class MyInstagram:
             
             endpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME)
 
-        if codeAPI == U.API_ENDPOINTS.GET_USER_BY_ID: 
+        elif codeAPI == U.API_ENDPOINTS.GET_USER_BY_ID: 
 
             endpoint = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_ID)
 
-        if codeAPI == U.API_ENDPOINTS.GET_FOLLOWINGS: 
+        elif codeAPI == U.API_ENDPOINTS.GET_FOLLOWINGS: 
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_FOLLOWINGS)
 
-        if codeAPI == U.API_ENDPOINTS.GET_FOLLOWERS: 
+        elif codeAPI == U.API_ENDPOINTS.GET_FOLLOWERS: 
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_FOLLOWERS)
 
-        if codeAPI == U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS: 
+        elif codeAPI == U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS: 
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS)
             
-        if codeAPI == U.API_ENDPOINTS.GET_STORIES: 
+        elif codeAPI == U.API_ENDPOINTS.GET_STORIES: 
 
             endpoint = feed_endpoint.feedEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_STORIES)
 
-        if codeAPI == U.API_ENDPOINTS.GET_POSTS: 
+        elif codeAPI == U.API_ENDPOINTS.GET_POSTS: 
 
             endpoint = feed_endpoint.feedEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_POSTS)
 
-        if codeAPI == U.API_ENDPOINTS.UNFOLLOW_USER:
+        elif codeAPI == U.API_ENDPOINTS.UNFOLLOW_USER:
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.UNFOLLOW_USER)
 
-        if codeAPI == U.API_ENDPOINTS.FOLLOW_USER: 
+        elif codeAPI == U.API_ENDPOINTS.FOLLOW_USER: 
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.FOLLOW_USER)
 
-        if codeAPI == U.API_ENDPOINTS.ACCEPT_FOLLOW: pass
+        elif codeAPI == U.API_ENDPOINTS.ACCEPT_FOLLOW:
 
-        if codeAPI == U.API_ENDPOINTS.REJECT_FOLLOW: pass
+            endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.ACCEPT_FOLLOW)
+
+        elif codeAPI == U.API_ENDPOINTS.REJECT_FOLLOW: pass
+
+        else: raise EX.MyInstagramException(f"API endpoint '{codeAPI.value}' is NOT valid")
 
         return endpoint.execute(**kwargs)
