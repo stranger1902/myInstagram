@@ -1,4 +1,4 @@
-# myInstagram
+# My Instagram API
 
 Python implementation of a Instagram API based on the official Instagram API, in particular, you can: 
 - get a list of followings about users
@@ -159,7 +159,25 @@ How to call method:
 ```python
 callAPI(API_ENDPOINTS.ACCEPT_FOLLOW, username="my_android_guide")
  ```
- 
+
+### REJECT_FOLLOW
+
+This method is used to reject pending friendship request sent by another user
+
+Params:
+
+- **`username: str`** &emsp; Instagram username of the user who sent you a friendship request
+
+Return value:
+
+- **`None`**
+
+How to call method:
+
+```python
+callAPI(API_ENDPOINTS.REJECT_FOLLOW, username="my_android_guide")
+ ```
+
 ### GET_FRIENDSHIP_STATUS
 
 This method return info about the friendship status with another user (es. you follow it, you sent a friendship request ecc..)
