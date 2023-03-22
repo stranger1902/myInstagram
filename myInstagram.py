@@ -375,7 +375,9 @@ class MyInstagram:
 
             endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.ACCEPT_FOLLOW)
 
-        elif codeAPI == U.API_ENDPOINTS.REJECT_FOLLOW: pass
+        elif codeAPI == U.API_ENDPOINTS.REJECT_FOLLOW: 
+
+            endpoint = friendship_endpoint.friendshipEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.REJECT_FOLLOW)
 
         else: raise EX.MyInstagramException(f"API endpoint '{codeAPI.value}' is NOT valid")
 

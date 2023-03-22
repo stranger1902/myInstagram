@@ -44,14 +44,16 @@ class API_ENDPOINTS(Enum):
     # users endpoints
     GET_USER_BY_USERNAME = C.API_BASE_URL + "users/web_profile_info/?username={}"
     GET_USER_BY_ID = C.API_BASE_URL + "users/{}/info/"
+    
     # friendships endpoints
     GET_FOLLOWINGS = C.API_BASE_URL + "friendships/{}/following/?count={}{}"
     GET_FOLLOWERS = C.API_BASE_URL + "friendships/{}/followers/?count={}{}"
     GET_FRIENDSHIP_STATUS = C.API_BASE_URL + "friendships/show/{}/"
     ACCEPT_FOLLOW = C.API_BASE_URL + "web/friendships/{}/approve/"
+    REJECT_FOLLOW = C.API_BASE_URL + "web/friendships/{}/ignore/"
     UNFOLLOW_USER = C.API_BASE_URL + "friendships/destroy/{}/"
     FOLLOW_USER = C.API_BASE_URL + "friendships/create/{}/"
-    REJECT_FOLLOW = None                                                                    #TODO: da implementare metodo
+
     # feeds endpoints
     GET_POSTS = C.API_BASE_URL + "feed/user/{}/username/?count={}{}"
     GET_STORIES = C.API_BASE_URL + "feed/reels_media/?reel_ids={}"

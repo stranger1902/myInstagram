@@ -23,6 +23,8 @@ class friendshipEndpointAPI():
 
         if self.URL is U.API_ENDPOINTS.GET_FRIENDSHIP_STATUS: return self.friendshipStatus(**kwargs)
 
+        if self.URL is U.API_ENDPOINTS.REJECT_FOLLOW: return self.rejectFollowRequest(**kwargs)
+
         if self.URL is U.API_ENDPOINTS.ACCEPT_FOLLOW: return self.acceptFollowRequest(**kwargs)
 
         if self.URL is U.API_ENDPOINTS.GET_FOLLOWINGS: return self.getFollowings(**kwargs)
@@ -135,7 +137,6 @@ class friendshipEndpointAPI():
 
         if currentUser["friendship"]["you_follow_it"]: return U.ScriviLog(f"You already follow '{username}'", U.LEVEL.INFO)
 
-        #TODO: se ho mandato la richiesta e poi questa viene rifiutata, tale campo viene ripristinato a False???
         if currentUser["friendship"]["you_sent_request"]: return U.ScriviLog(f"You have already sent friendship request to '{username}'", U.LEVEL.INFO)
 
         header = {"referer" : f"https://www.instagram.com/{currentUser['username']}/",
@@ -194,9 +195,7 @@ class friendshipEndpointAPI():
 
         currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
 
-        U.ScriviLog(currentUser, U.LEVEL.INFO)
-
-        if not currentUser["friendship"]["you_received_request"]: return U.ScriviLog(f"You have NOT received follow request by '{username}'", U.LEVEL.INFO)
+        if not currentUser["friendship"]["you_received_request"]: return U.ScriviLog(f"You have NOT received any follow request by '{username}'", U.LEVEL.INFO)
 
         header = {"referer" : f"https://www.instagram.com/{currentUser['username']}/",
                   "X-Instagram-AJAX" : self.sessionContext.X_Instagram_AJAX,
@@ -210,3 +209,23 @@ class friendshipEndpointAPI():
         if ResponseAcceptFollowJSON["data"]["status"] == "ok": U.ScriviLog(f"You accepted follow request received by '{username}' correctly", U.LEVEL.INFO)
 
         else: raise EX.MyInstagramException(ResponseAcceptFollowJSON)
+
+    def rejectFollowRequest(self, username):
+
+        currentUser = user_endpoint.userEndpointAPI(self.sessionContext, self.MyDB, U.API_ENDPOINTS.GET_USER_BY_USERNAME).execute(username=username)
+
+        if not currentUser["friendship"]["you_received_request"]: return U.ScriviLog(f"You have NOT received any follow request by '{username}'", U.LEVEL.INFO)
+
+        header = {"referer" : f"https://www.instagram.com/{currentUser['username']}/",
+                  "X-Instagram-AJAX" : self.sessionContext.X_Instagram_AJAX,
+                  "X-IG-WWW-Claim" : self.sessionContext.X_IG_WWW_Claim,
+                  "X-CSRFToken" : self.sessionContext.X_CSRF_Token,
+                  "X-ASBD-ID" : self.sessionContext.AppID,
+                  "TE" : "trailers"
+                  }
+
+        ResponseRejectFollow, ResponseRejectFollowJSON = self.sessionContext.makeRequest(S.TYPE_REQUEST.POST, *[U.API_ENDPOINTS.REJECT_FOLLOW, currentUser["id"]], headers=header, payloads={})
+
+        if ResponseRejectFollowJSON["data"]["status"] == "ok": U.ScriviLog(f"You rejected follow request received by '{username}' correctly", U.LEVEL.INFO)
+
+        else: raise EX.MyInstagramException(ResponseRejectFollowJSON)
