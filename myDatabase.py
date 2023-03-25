@@ -151,4 +151,4 @@ class MyDatabase():
         
         except Exception as err: raise EX.MyDatabaseException(err)
 
-        U.writeLog(f"Connetion to the database '{self.databaseName}' is closed SUCCESSFULLY", U.LEVEL.INFO)
+        U.ScriviLog(f"Connetion to the database '{self.databaseName}' is closed SUCCESSFULLY", U.LEVEL.INFO)
