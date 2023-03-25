@@ -2,13 +2,11 @@ from costants import DATABASE_FILENAME
 
 import myDatabase as DB
 import utils as U
+  
+U.createFolders()
 
-def init():
-    
-    U.createFolders()
+MyConnetionDB = DB.MyDatabase(DATABASE_FILENAME)
 
-    MyConnetionDB = DB.MyDatabase(DATABASE_FILENAME)
-
-    MyConnetionDB.connectDB()
-    MyConnetionDB.createTablesDB()
-    MyConnetionDB.closeConnection()
+MyConnetionDB.connectDB()
+MyConnetionDB.createTablesDB()
+MyConnetionDB.closeConnection()
